@@ -1,4 +1,5 @@
 //import validation from '../validation.js';
+//import analyzeAudio  from './beatmap.js';
 
 export const uploadSong = () => {
   return {name: "song1", link: null, audio: "audio1"};
@@ -17,7 +18,15 @@ export const searchSong = async (keyword) => {
 };
 
 export const generateBeatmap = async (song) => {
-  return {beats: [{"time1": "beat1"}, {"time2": "beat2"}]};
+  // song is filepath here for now
+  /*
+  analyzeAudio(song)
+  .then(result => {
+    console.log(JSON.stringify(result, null, 2));
+  })
+  .catch(error => {
+    console.error(error);
+  });*/
 };
 
 

@@ -12,4 +12,11 @@ router
 
     });
 
+router
+    .route('/beatmap')
+    .get(async (req, res) => {
+      return;
+      //return songs.generateBeatmap('../songs/sample_song.mp3');
+    });
+
 export default router;
