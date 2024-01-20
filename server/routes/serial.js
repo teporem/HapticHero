@@ -1,3 +1,4 @@
+// connects to serialport via server - for testing purposes only 
 import express from 'express';
 import { connectToSerialPort, disconnectFromSerialPort, writeDataToSerial } from '../data/serial.js';
 

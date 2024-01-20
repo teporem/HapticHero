@@ -1,3 +1,4 @@
+// connects to serialport via server - for testing purposes only
 import React, { useState } from 'react';
 import axios from 'axios';
 
