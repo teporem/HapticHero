@@ -44,12 +44,13 @@ const findPitchThenOnset = (audioPath) => {
 // https://github.com/MTG/essentia.js/tree/dev/examples/demos/onsets
 
 // TODO: Adjust settings as needed
+// hopsize is percentage of frame size on demo
 const params = {
-  frameSize: 1024,
-  hopSize: 512,
-  odfs: ["hfc","complex"],
-  odfsWeights: [0.5,0.5],
-  sensitivity: 0.65
+  frameSize: 8192, //1024,
+  hopSize: 2457.6, //512,
+  odfs: ["complex"], //["hfc","complex"],
+  odfsWeights: [1], //[0.5,0.5],
+  sensitivity: 0.9 //0.65
 };
 
 const findOnsets = (buffer) => {
