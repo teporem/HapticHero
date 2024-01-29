@@ -2,6 +2,8 @@ import logo from './logo.svg';
 import Gamepad from './components/Gamepad';
 //import SerialCommunication from './components/SerialCommunication';
 import WebSerialAPI from './components/WebSerialAPI';
+import Bluetooth from './components/Bluetooth';
+
 import './App.css';
 
 function App() {
@@ -12,6 +14,7 @@ function App() {
         <Gamepad />
       </header>
       <WebSerialAPI/>
+      <Bluetooth/>
     </div>
   );
 }

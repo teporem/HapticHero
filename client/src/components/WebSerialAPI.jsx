@@ -6,6 +6,7 @@ const WebSerialAPI = () => {
   const [inputData, setInputData] = useState('');
   const [port, setPort] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
+  const [inputFile, setInputFile] = useState(null);
 
   //const picoVendorId = '239A';
   //const picoProductId = '80F4';
@@ -48,6 +49,26 @@ const WebSerialAPI = () => {
     }
   };
 
+  const sendAudioData = async () => {
+    if (!port || !inputFile) return;
+
+    try {
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        const data = new Uint8Array(event.target.result);
+        await port.write(data);
+        console.log('Audio data sent.');
+      };
+      reader.readAsArrayBuffer(inputFile);
+    } catch (error) {
+      console.error('Error sending audio data:', error);
+    }
+  };
+
+  const handleFileInputChange = (event) => {
+    setInputFile(event.target.files[0]);
+  };
+
   const sendData = async () => {
     try {
       if (port) {
@@ -78,6 +99,9 @@ const WebSerialAPI = () => {
         onChange={(e) => setInputData(e.target.value)}
       />
       <button onClick={sendData}>Send Data</button>
+      <br />
+      <input type="file" onChange={handleFileInputChange} />
+      <button onClick={sendAudioData}>Send Audio Data</button>
     </div>
   );
 };
