@@ -21,6 +21,7 @@
     "express-session": "^1.17.3",
     "meyda": "^5.6.2",
     "node-wav": "^0.0.2",
+    "python-shell": "^5.0.0",
     "redis": "^4.6.11",
     "xss": "^1.0.14"
   }

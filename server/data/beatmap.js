@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 import esLib from 'essentia.js';
 import {PolarFFTWASM} from '../lib/polarFFT.module.js';
 import {OnsetsWASM} from '../lib/onsets.module.js';
+import spleeter from './python_scripts.js';
 import * as wav from 'node-wav';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -146,7 +147,7 @@ const createBeatmap = (onsets, pitches) => {
 };
   
 // analyzes audio and returns formatted data
-const analyzeAudio = (filePath) => {
+const analyzeAudio = async (filePath) => {
   try {
     const bufferSize = 512;
 
@@ -156,6 +157,8 @@ const analyzeAudio = (filePath) => {
 
     const audioPath = path.join(__dirname, filePath);
     console.log(`Analyzing ${audioPath}`);
+    const result = await spleeter(audioPath);
+    console.log("spleeter done")
     const fileBuffer = readFileSync(audioPath);
     const audioBuffer = wav.decode(fileBuffer);
     //const audioBuffer = await loadFile(audioPath); uses _channelData
@@ -176,7 +179,7 @@ const analyzeAudio = (filePath) => {
 
     const pitches = findPitches(onsets, audioBuffer);
     const beatmap = createBeatmap(onsetsMilliseconds, pitches);
-    console.log(beatmap);
+    //console.log(beatmap);
     return beatmap;
   } catch (error) {
     throw `Error: ${error.message}`;
