@@ -10,6 +10,7 @@ const WebSerialAPI = () => {
 
   //const picoVendorId = '239A';
   //const picoProductId = '80F4';
+  console.log("Test");
 
   const connect = async () => {
 
@@ -20,7 +21,9 @@ const WebSerialAPI = () => {
       if (port && port.writable) {
         await port.writable.getWriter().close();
       }
-      await port.close();
+      if (port) {
+        await port.close();
+      }
       console.log("Closed existing port.")
     } catch (error) {
       console.error('Error closing existing port:', error);
@@ -30,7 +33,7 @@ const WebSerialAPI = () => {
       const filter = { usbVendorId: 0x239A };
       const port = await navigator.serial.requestPort({filters: [filter]});
       setPort(port);
-      await port.open({ baudRate: 9600 });
+      await port.open({ baudRate: 115200 });
       setIsConnected(true);
       console.log("Connected to port.");
 
@@ -51,15 +54,16 @@ const WebSerialAPI = () => {
 
   const sendAudioData = async () => {
     if (!port || !inputFile) return;
-
+  
     try {
-      const reader = new FileReader();
-      reader.onload = async (event) => {
-        const data = new Uint8Array(event.target.result);
-        await port.write(data);
-        console.log('Audio data sent.');
-      };
-      reader.readAsArrayBuffer(inputFile);
+      const fileBuffer = await inputFile.arrayBuffer();
+      const data = new Uint8Array(fileBuffer); // remove?
+  
+      const writer = port.writable.getWriter();
+      await writer.write(data);
+      await writer.releaseLock();
+      
+      console.log('Audio data sent?');
     } catch (error) {
       console.error('Error sending audio data:', error);
     }
@@ -84,6 +88,7 @@ const WebSerialAPI = () => {
 
   return (
     <div>
+      <h2>Web Serial API</h2>
       {isConnected ? (
           <div>Device Connected</div>
       ) : (

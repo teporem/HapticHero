@@ -40,6 +40,7 @@ const Bluetooth = () => {
 
   return (
     <div>
+      <h2>Bluetooth</h2>
       {isConnected ? (
         <div>Device Connected</div>
       ) : (
