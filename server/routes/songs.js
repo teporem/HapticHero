@@ -12,4 +12,16 @@ router
 
     });
 
+router
+    .route('/beatmap')
+    .get(async (req, res) => {
+      try {
+        const beatmap = songs.generateBeatmap('../songs/sample_song.wav');
+        return res.json(beatmap);
+      } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: 'Internal Server Error' });
+      }
+    });
+
 export default router;
