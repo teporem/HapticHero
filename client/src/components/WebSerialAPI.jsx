@@ -1,5 +1,6 @@
 // connects to serialport via Web Serial API - not really compatible with mobile devices
 import React, { useState } from 'react';
+import {WaveFile} from 'wavefile';
 
 const WebSerialAPI = () => {
   const [serialData, setSerialData] = useState('');
@@ -56,11 +57,47 @@ const WebSerialAPI = () => {
     if (!port || !inputFile) return;
   
     try {
-      const fileBuffer = await inputFile.arrayBuffer();
-      const data = new Uint8Array(fileBuffer); // remove?
-  
+      /*const fileBuffer = await inputFile.arrayBuffer();
+      const audioContext = new AudioContext();
+      
+      const data = new Uint8Array(fileBuffer);
+
       const writer = port.writable.getWriter();
       await writer.write(data);
+      await writer.releaseLock();*/
+
+      /*const CHUNK_SIZE = 1024; // Adjust chunk size as needed
+      const reader = new FileReader();
+      //const fileBuffer = await inputFile.arrayBuffer();
+      reader.onload = async (event) => {
+          const buffer = event.target.result;
+          for (let i = 0; i < buffer.byteLength; i += CHUNK_SIZE) {
+              const chunk = buffer.slice(i, i + CHUNK_SIZE);
+              const writer = port.writable.getWriter();
+              await writer.write(chunk);
+              await writer.releaseLock();
+          }
+      };
+      reader.readAsArrayBuffer(inputFile);*/
+
+      const CHUNK_SIZE = 1024; // Adjust chunk size as needed
+
+      const fileSize = inputFile.size;
+      let offset = 0;
+
+      while (offset < fileSize) {
+          const chunk = inputFile.slice(offset, offset + CHUNK_SIZE);
+          const chunkData = await chunk.arrayBuffer();
+          const writer = port.writable.getWriter();
+          await writer.write(chunkData);
+          await writer.releaseLock();
+          offset += CHUNK_SIZE;
+          console.log("a chunk sent")
+      }
+
+      // Signal the end of data transmission (assuming newline character)
+      const writer = port.writable.getWriter();
+      await writer.write(new TextEncoder().encode('\n'));
       await writer.releaseLock();
       
       console.log('Audio data sent?');
