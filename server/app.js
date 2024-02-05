@@ -2,10 +2,16 @@ import express from 'express';
 //import session from 'express-session';
 //import redis from 'redis';
 //import RedisStore from 'connect-redis';
-//import cors from 'cors';
+import cors from 'cors';
 import configRoutes from './routes/index.js';
 
 const app = express();
+app.use(cors({
+  credentials: true,
+  origin: 'http://localhost:3000'
+}
+));
+app.use(express.json());
 
 configRoutes(app);
 

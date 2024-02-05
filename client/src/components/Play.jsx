@@ -11,6 +11,7 @@ const Play = ({ song }) => {
 
   const startGame = () => {
     setCurrentTime(0);
+    setScore(0);
     
     document.addEventListener('keyup', handleKeyPress);
 
@@ -26,8 +27,8 @@ const Play = ({ song }) => {
     let currentNoteIndex = 0;
 
     gameInterval = setInterval(() => {
-      setCurrentTime((prev) => prev + 1);
-      c_time = c_time + 1;
+      setCurrentTime((prev) => prev + 100);
+      c_time = c_time + 100;
       if (currentNoteIndex < beatmapEntries.length) {
         const [time, note] = beatmapEntries[currentNoteIndex];
         //console.log(`Expected Note at ${time}: ${note}`);
@@ -37,13 +38,13 @@ const Play = ({ song }) => {
           currentNoteIndex++;
         }
       }
-    }, 1000);
+    }, 100);
 
     const clearTimer = () => clearInterval(gameInterval);
 
     setTimeout(() => {
       clearTimer();
-    }, song.duration * 1000);
+    }, song.duration);
 
     return clearTimer;
   };
@@ -51,7 +52,7 @@ const Play = ({ song }) => {
   const handleKeyPress = (event) => {
     switch (event.key) {
       case 'ArrowUp':
-        if ('A' === c_note.note && Math.abs(c_time - c_note.time) <= 1) {
+        if ('A' === c_note.note && Math.abs(c_time - c_note.time) <= 1000) {
           console.log('Note played accurately!');
           setScore((prev) => prev + 10);
         } else {
@@ -59,7 +60,7 @@ const Play = ({ song }) => {
         }
         break;
       case 'ArrowDown':
-        if ('B' === c_note.note && Math.abs(c_time - c_note.time) <= 1) {
+        if ('B' === c_note.note && Math.abs(c_time - c_note.time) <= 1000) {
           console.log('Note played accurately!');
           setScore((prev) => prev + 10);
         } else {
@@ -67,7 +68,7 @@ const Play = ({ song }) => {
         }
         break;
       case 'ArrowLeft':
-        if ('C' === c_note.note && Math.abs(c_time - c_note.time) <= 1) {
+        if ('C' === c_note.note && Math.abs(c_time - c_note.time) <= 1000) {
           console.log('Note played accurately!');
           setScore((prev) => prev + 10);
         } else {
@@ -75,7 +76,7 @@ const Play = ({ song }) => {
         }
         break;
       case 'ArrowRight':
-        if ('D' === c_note.note && Math.abs(c_time - c_note.time) <= 1) {
+        if ('D' === c_note.note && Math.abs(c_time - c_note.time) <= 1000) {
           console.log('Note played accurately!');
           setScore((prev) => prev + 10);
         } else {
@@ -111,7 +112,7 @@ const Play = ({ song }) => {
       ) : (
         <div>
           <p>Game is now playing!</p>
-          <p>Current Time: {currentTime} </p>
+          <p>Current Time: {currentTime}ms</p>
           <p>Current Note {currentNote.note}</p>
           <p>Score: {score}</p>
         </div>
