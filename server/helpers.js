@@ -9,7 +9,7 @@ async function getuserdata(objtype, objid) {
 	}
 //	let key = objtype + "_" + objid;
 //	let clientExists = await client.exists(key);
-	let retdata = null;
+	let retdata = null; //need to store songs and settings
 /*	if(!clientExists) {
 		console.log("Getting from the Marvel Portal");
 		let publick = marvel.getpublickey();
