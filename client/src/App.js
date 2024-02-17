@@ -22,7 +22,7 @@ function App() {
           <Route path='/home' element={<Home />}/>
           <Route path='/play' element={<Play song={song}/>} />
           <Route path='/tutorial' element={<Tutorial />}></Route>
-          <Route path='/bluetooth' element={<Bluetooth/>}></Route>
+          <Route path='/bluetooth' element={<Bluetooth />}></Route>
         </Routes>
       </header>
     </div>
