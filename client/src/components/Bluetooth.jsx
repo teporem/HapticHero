@@ -8,7 +8,10 @@ const Bluetooth = () => {
     try {
       const options = {
         filters: [
-          { services: [0x603ec4a9, 0x6837, 0x44a5, 0xb388, 0xa910269edd43] } 
+          //{ services: [0x603ec4a9, 0x6837, 0x44a5, 0xb388, 0xa910269edd43] } 
+          //{ services: [0xADAF0201, 0x4369, 0x7263, 0x7569, 0x74507974686E] } ,
+          //{ services: ["6E400001-B5A3-F393-E0A9-E50E24DCCA9E"]},
+          { name: "CIRCUITPY015a" },
         ]
       };
       const device = await navigator.bluetooth.requestDevice(options);

@@ -13,7 +13,6 @@ function App() {
         <h1>Gamepad API</h1>
         <Gamepad />
       </header>
-      <WebSerialAPI/>
       <Bluetooth/>
     </div>
   );
