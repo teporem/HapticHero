@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
 
+//let ble_device;
+//let ble_server;
 const Bluetooth = () => {
   const [device, setDevice] = useState(null);
+  const [server, setServer] = useState(null);
+  const [service, setService] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
   const [serialData, setSerialData] = useState('');
   const [inputData, setInputData] = useState('');
@@ -21,10 +25,9 @@ const Bluetooth = () => {
 
   const connect = async () => {
     try {
+      if (device) return;
       const options = {
         filters: [
-          //{ services: [0x603ec4a9, 0x6837, 0x44a5, 0xb388, 0xa910269edd43] } 
-          //{ services: [0xADAF0201, 0x4369, 0x7263, 0x7569, 0x74507974686E] } ,
           //{ services: ["6E400001-B5A3-F393-E0A9-E50E24DCCA9E"]},
           { name: "CIRCUITPY015a" },
         ],
@@ -34,9 +37,21 @@ const Bluetooth = () => {
             UART_SERVICE_UUID
         ]
       };
-      const device = await navigator.bluetooth.requestDevice(options);
-      const server = await device.gatt.connect();
-      const service = await server.getPrimaryService(UART_SERVICE_UUID);
+      console.log("device requested");
+      const ble_device = await navigator.bluetooth.requestDevice(options);
+      setDevice(ble_device);
+      setIsConnected(true);
+
+      const ble_server = await ble_device.gatt.connect();
+      console.log("GATT connected");
+      setServer(ble_server);
+      //ble_device = device;
+      
+      console.log("About to get Primary service.");
+      const ble_service = await ble_server.getPrimaryService(UART_SERVICE_UUID);
+      setService(ble_service);
+      console.log("Got primary service.");
+      /*
       const txCharacteristic = await service.getCharacteristic(
         UART_TX_CHARACTERISTIC_UUID
       );
@@ -44,16 +59,15 @@ const Bluetooth = () => {
       txCharacteristic.addEventListener(
         "characteristicvaluechanged",
         onTxCharacteristicValueChanged
-      );
-      rxCharacteristic = await service.getCharacteristic(
+      );*/
+      rxCharacteristic = await ble_service.getCharacteristic(
         UART_RX_CHARACTERISTIC_UUID
       );
-      setDevice(device);
-      setIsConnected(true);
+
       console.log('Connected to Bluetooth device');
     } catch (error) {
       console.error('Error connecting to Bluetooth device:', error);
-      setIsConnected(false);
+      //setIsConnected(false);
     }
   };
 
@@ -70,21 +84,32 @@ const Bluetooth = () => {
     }
   }
 
-  useEffect(() => {
+  const disconnect = () => {
     if (!device) return;
-
-    const disconnect = () => {
-      if (device.gatt.connected) {
-        device.gatt.disconnect();
-        setIsConnected(false);
-        console.log('Disconnected from Bluetooth device');
-      }
-    };
-
+    if (device.gatt.connected) {
+      device.gatt.disconnect();
+      setIsConnected(false);
+      console.log('Disconnected from Bluetooth device');
+    }
+  };
+/*
+  useEffect(() => {
+    
     return () => {
       disconnect();
     };
-  }, [device]);
+  }, []);*/
+  useEffect(() => {
+    const handleBeforeUnload = (event) => {
+      // Perform actions before the component unloads
+      disconnect();
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [disconnect]);
+
 
   const sendAudioData = async () => {
     
@@ -116,7 +141,7 @@ const Bluetooth = () => {
         <div>Device Not Connected</div>
       )}
       <button onClick={connect}>Connect</button>
-
+      <button onClick={disconnect}>Disconnect</button>
       <br />
       <input
         type="text"
