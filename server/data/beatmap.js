@@ -46,11 +46,11 @@ const findPitchThenOnset = (audioPath) => {
 // TODO: Adjust settings as needed
 // hopsize is percentage of frame size on demo
 const params = {
-  frameSize: 8192, //1024,
-  hopSize: 2457.6, //512,
-  odfs: ["complex"], //["hfc","complex"],
-  odfsWeights: [1], //[0.5,0.5],
-  sensitivity: 0.9 //0.65
+  frameSize: 1024, //8192, //1024,
+  hopSize: 512, //2457.6, //512,
+  odfs: ["hfc","complex"], //["complex"], //["hfc","complex"],
+  odfsWeights: [0.5,0.5], //[1], //[0.5,0.5],
+  sensitivity: 0.65, //0.9 //0.65
 };
 
 const findOnsets = (buffer) => {
