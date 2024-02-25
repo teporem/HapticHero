@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Play from './Play';
-import beatmap from '../demo/purple_demo2_beatmap2.json';
+import beatmap from '../demo/purple_demo_beatmap2.json';
 
 const Tutorial = () => {
   const [song, setSong] = useState(null);
