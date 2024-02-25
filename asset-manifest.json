@@ -1,0 +1,19 @@
+{
+  "files": {
+    "main.css": "/HapticHero/static/css/main.818c31e2.css",
+    "main.js": "/HapticHero/static/js/main.a1701e72.js",
+    "static/js/787.d5fa4d18.chunk.js": "/HapticHero/static/js/787.d5fa4d18.chunk.js",
+    "static/media/purple_demo2.wav": "/HapticHero/static/media/purple_demo2.b8e67a46ae19c5c27c6c.wav",
+    "static/media/mascot-v2.svg": "/HapticHero/static/media/mascot-v2.8a58bc52818c37622f2ff1e6b2353553.svg",
+    "static/media/logo.svg": "/HapticHero/static/media/logo.6ce24c58023cc2f8fd88fe9d219db6c6.svg",
+    "index.html": "/HapticHero/index.html",
+    "static/media/strings.svg": "/HapticHero/static/media/strings.dc1ab004baaa73b29d4b.svg",
+    "main.818c31e2.css.map": "/HapticHero/static/css/main.818c31e2.css.map",
+    "main.a1701e72.js.map": "/HapticHero/static/js/main.a1701e72.js.map",
+    "787.d5fa4d18.chunk.js.map": "/HapticHero/static/js/787.d5fa4d18.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.818c31e2.css",
+    "static/js/main.a1701e72.js"
+  ]
+}
