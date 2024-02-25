@@ -6,7 +6,7 @@ const Start = () => {
   return (
     <div>
         <h1>Haptic Hero</h1>
-        <a href="/home">Tap to Start</a>
+        <a href="#/home">Tap to Start</a>
         <img className="svg" src={logo} alt="Haptic Hero mascot" />
     </div>
   );

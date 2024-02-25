@@ -14,9 +14,9 @@ const Home = () => {
 		<div >
 			<h1>Haptic Hero</h1>
 		  { demo ? (
-        <a href="/tutorial">Start Tutorial</a>
+        <a href="#/tutorial">Start Tutorial</a>
       ) : (
-        <a href="/play">Start Game</a>
+        <a href="#/play">Start Game</a>
       )}
 		</div>
 	);
