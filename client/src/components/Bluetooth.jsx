@@ -120,13 +120,18 @@ const Bluetooth = () => {
   };
 
   const sendData = async () => {
+    console.log("Data to send:", inputData);
+    console.log("Trying to send data!");
     if (!rxCharacteristic) {
+      console.log("No rxCharacterestic found.");
       return;
     }
   
     try {
+      console.log("Sending data!");
       let encoder = new TextEncoder();
-      rxCharacteristic.writeValue(encoder.encode(inputData + "\n"));
+      await rxCharacteristic.writeValue(encoder.encode(inputData + "\n"));
+      console.log("Data sent!");
     } catch (error) {
       console.log(error);
     }
