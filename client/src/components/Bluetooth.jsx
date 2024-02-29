@@ -10,6 +10,7 @@ const Bluetooth = () => {
   const [serialData, setSerialData] = useState('');
   const [inputData, setInputData] = useState('');
   const [inputFile, setInputFile] = useState(null);
+  const [rxChara, setRxChara] = useState(null);
 
   // https://lancaster-university.github.io/microbit-docs/resources/bluetooth/bluetooth_profile.html
   // An implementation of Nordic Semicondutor's UART/Serial Port Emulation over Bluetooth low energy
@@ -63,7 +64,7 @@ const Bluetooth = () => {
       rxCharacteristic = await ble_service.getCharacteristic(
         UART_RX_CHARACTERISTIC_UUID
       );
-
+      setRxChara(rxCharacteristic);
       console.log('Connected to Bluetooth device');
     } catch (error) {
       console.error('Error connecting to Bluetooth device:', error);
@@ -122,7 +123,7 @@ const Bluetooth = () => {
   const sendData = async () => {
     console.log("Data to send:", inputData);
     console.log("Trying to send data!");
-    if (!rxCharacteristic) {
+    if (!rxChara) {
       console.log("No rxCharacterestic found.");
       return;
     }
@@ -130,7 +131,7 @@ const Bluetooth = () => {
     try {
       console.log("Sending data!");
       let encoder = new TextEncoder();
-      await rxCharacteristic.writeValue(encoder.encode(inputData + "\n"));
+      await rxChara.writeValue(encoder.encode(inputData + "\n"));
       console.log("Data sent!");
     } catch (error) {
       console.log(error);

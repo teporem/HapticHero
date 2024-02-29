@@ -160,7 +160,7 @@ const Play = ({ song, tutorial }) => {
       <button onClick={handlePlayButtonClick}>Play</button>
       {countdown > 0 ? (
         <div>
-          <div>{countdown}</div>
+          <p>{countdown}</p>
         </div>
       ) : (
         <div>  
