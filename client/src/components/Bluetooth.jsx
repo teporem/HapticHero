@@ -131,7 +131,7 @@ const Bluetooth = () => {
     try {
       console.log("Sending data!");
       let encoder = new TextEncoder();
-      await rxChara.writeValue(encoder.encode(inputData + "\n"));
+      await rxChara.writeValueWithoutResponse(encoder.encode(inputData + "\n"));
       console.log("Data sent!");
     } catch (error) {
       console.log(error);
