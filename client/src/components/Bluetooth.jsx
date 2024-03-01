@@ -48,7 +48,7 @@ const Bluetooth = () => {
       const ble_service = await ble_server.getPrimaryService(UART_SERVICE_UUID);
       setService(ble_service);
       console.log("Got primary service.");
-      
+      /*
       const txCharacteristic = await service.getCharacteristic(
         UART_TX_CHARACTERISTIC_UUID
       );
@@ -56,7 +56,7 @@ const Bluetooth = () => {
       txCharacteristic.addEventListener(
         "characteristicvaluechanged",
         onTxCharacteristicValueChanged
-      );
+      );*/
       rxCharacteristic = await ble_service.getCharacteristic(
         UART_RX_CHARACTERISTIC_UUID
       );
