@@ -8,6 +8,7 @@ const Play = ({ song, tutorial }) => {
   const [currentNote, setCurrentNote] = useState({ time: 0, note: song.beatmap[0], played: false });
   const [score, setScore] = useState(0);
   const [audio] = useState(tutorial ? new Audio(demo_audio) : null);
+  const [gamePlaying, setGamePlaying] = useState(false);
 
   let c_time = 0;
   let c_note = {time: 0, note: song.beatmap[0], played: false}
@@ -20,13 +21,16 @@ const Play = ({ song, tutorial }) => {
     streakBroken: false
   });
 
+  useEffect(() => {
+    document.addEventListener("keydown", handleKeyPress);
+    return () => document.removeEventListener("keydown", handleKeyPress);
+  });
+
   const startGame = () => {
     setCurrentTime(0);
 
     setScore(0);
     setStats({hit:0, miss:0, currentStreak:0, longestStreak:0});
-
-    document.addEventListener('keyup', handleKeyPress);
 
     if (gameInterval) {
       clearInterval(gameInterval);
@@ -48,6 +52,7 @@ const Play = ({ song, tutorial }) => {
         //console.log(`Expected Note at ${time}: ${note}`);
         //every 100ms, check if there's a new upcoming note to expect
         if (parseInt(time) <= c_time) {
+          //handleMiss();
           c_note = { time: time, note: note, played: false };
           setCurrentNote(c_note);
           currentNoteIndex++;
@@ -61,8 +66,16 @@ const Play = ({ song, tutorial }) => {
       clearTimer();
     }, song.duration);
 
+    //setGamePlaying(false);
     return;
   };
+
+  const stopAudio = () => {
+    if (audio && !audio.paused) {
+      audio.pause(); 
+      audio.currentTime = 0; 
+    }
+  }
 
   const playAudio = () => {
     if (audio) {
@@ -71,12 +84,14 @@ const Play = ({ song, tutorial }) => {
   };
 
   const handleMiss = () => {
-    //setScore((prev) => prev - 1);
-    setStats(prevStats => ({
-      ...prevStats,
-      miss: prevStats.miss + 1,
-      currentStreak: 0,
-    }));
+    //if (!currentNote.played) {
+      //setScore((prev) => prev - 1);
+      setStats(prevStats => ({
+        ...prevStats,
+        miss: prevStats.miss + 1,
+        currentStreak: 0,
+      }));
+    //}
   };
 
   const handleHit = () => {
@@ -88,46 +103,50 @@ const Play = ({ song, tutorial }) => {
       currentStreak: prevStats.currentStreak + 1,
       longestStreak:
         prevStats.currentStreak+1 > prevStats.longestStreak
-        ? prevStats.currentStreak : prevStats.longestStreak
+        ? prevStats.currentStreak+1 : prevStats.longestStreak
     }));
   };
 
   const handleKeyPress = (event) => {
     switch (event.key) {
       case 'ArrowUp':
-        if ('A' === c_note.note && Math.abs(c_time - c_note.time) <= 1000) {
-          c_note.played ? handleMiss() : handleHit();
-          c_note.played = true;
+        if ('A' === currentNote.note && Math.abs(currentTime - currentNote.time) <= 1000) {
+          currentNote.played ? handleMiss() : handleHit();
+          setCurrentNote(prevNote => ({ ...prevNote, played: true }));
         } else {
-          console.log(`Missed note! ${c_time} doesn't match ${c_note.time} or ${c_note.note} not A`);
+          console.log(`Missed note! ${currentTime} doesn't match ${currentNote.time} or ${currentNote.note} not A`);
           handleMiss();
+          setCurrentNote(prevNote => ({ ...prevNote, played: true }));
         }
         break;
       case 'ArrowDown':
-        if ('B' === c_note.note && Math.abs(c_time - c_note.time) <= 1000) {
-          c_note.played ? handleMiss() : handleHit();
-          c_note.played = true;
+        if ('B' === currentNote.note && Math.abs(currentTime - currentNote.time) <= 1000) {
+          currentNote.played ? handleMiss() : handleHit();
+          setCurrentNote(prevNote => ({ ...prevNote, played: true }));
         } else {
-          console.log(`Missed note! ${c_time} doesn't match ${c_note.time} or ${c_note.note} not B`);
+          console.log(`Missed note! ${currentTime} doesn't match ${currentNote.time} or ${currentNote.note} not B`);
           handleMiss();
+          setCurrentNote(prevNote => ({ ...prevNote, played: true }));
         }
         break;
       case 'ArrowLeft':
-        if ('C' === c_note.note && Math.abs(c_time - c_note.time) <= 1000) {
-          c_note.played ? handleMiss() : handleHit();
-          c_note.played = true;
+        if ('C' === currentNote.note && Math.abs(currentTime - currentNote.time) <= 1000) {
+          currentNote.played ? handleMiss() : handleHit();
+          setCurrentNote(prevNote => ({ ...prevNote, played: true }));
         } else {
-          console.log(`Missed note! ${c_time} doesn't match ${c_note.time} or ${c_note.note} not C`);
+          console.log(`Missed note! ${currentTime} doesn't match ${currentNote.time} or ${currentNote.note} not C`);
           handleMiss();
+          setCurrentNote(prevNote => ({ ...prevNote, played: true }));
         }
         break;
       case 'ArrowRight':
-        if ('D' === c_note.note && Math.abs(c_time - c_note.time) <= 1000) {
-          c_note.played ? handleMiss() : handleHit();
-          c_note.played = true;
+        if ('D' === currentNote.note && Math.abs(currentTime - currentNote.time) <= 1000) {
+          currentNote.played ? handleMiss() : handleHit();
+          setCurrentNote(prevNote => ({ ...prevNote, played: true }));
         } else {
-          console.log(`Missed note! ${c_time} doesn't match ${c_note.time} or ${c_note.note} not D`);
+          console.log(`Missed note! ${currentTime} doesn't match ${currentNote.time} or ${currentNote.note} not D`);
           handleMiss();
+          setCurrentNote(prevNote => ({ ...prevNote, played: true }));
         }
         break;
       default:
@@ -138,6 +157,8 @@ const Play = ({ song, tutorial }) => {
 
   const handlePlayButtonClick = () => {
     setCountdown(3);
+    stopAudio();
+    //setGamePlaying(true);
 
     const countdownInterval = setInterval(() => {
       setCountdown((prev) => prev - 1);
@@ -157,7 +178,7 @@ const Play = ({ song, tutorial }) => {
       : (<div></div>)
       }
 
-      <button onClick={handlePlayButtonClick}>Play</button>
+      <button onClick={handlePlayButtonClick} disabled={gamePlaying}>Play</button>
       {countdown > 0 ? (
         <div>
           <p>{countdown}</p>

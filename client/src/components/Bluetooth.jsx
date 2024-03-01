@@ -29,12 +29,9 @@ const Bluetooth = () => {
       if (device) return;
       const options = {
         filters: [
-          //{ services: ["6E400001-B5A3-F393-E0A9-E50E24DCCA9E"]},
           { name: "CIRCUITPY015a" },
         ],
         optionalServices: [
-//          "6e400001-b5a3-f393-­e0a9-­e50e24dcca9e",
-//            '00001234-0000-1000-8000-00805f9b34fb'
             UART_SERVICE_UUID
         ]
       };
@@ -46,13 +43,12 @@ const Bluetooth = () => {
       const ble_server = await ble_device.gatt.connect();
       console.log("GATT connected");
       setServer(ble_server);
-      //ble_device = device;
       
       console.log("About to get Primary service.");
       const ble_service = await ble_server.getPrimaryService(UART_SERVICE_UUID);
       setService(ble_service);
       console.log("Got primary service.");
-      /*
+      
       const txCharacteristic = await service.getCharacteristic(
         UART_TX_CHARACTERISTIC_UUID
       );
@@ -60,7 +56,7 @@ const Bluetooth = () => {
       txCharacteristic.addEventListener(
         "characteristicvaluechanged",
         onTxCharacteristicValueChanged
-      );*/
+      );
       rxCharacteristic = await ble_service.getCharacteristic(
         UART_RX_CHARACTERISTIC_UUID
       );
@@ -68,7 +64,7 @@ const Bluetooth = () => {
       console.log('Connected to Bluetooth device');
     } catch (error) {
       console.error('Error connecting to Bluetooth device:', error);
-      //setIsConnected(false);
+      setIsConnected(false);
     }
   };
 
@@ -80,9 +76,6 @@ const Bluetooth = () => {
   
     const receivedString = String.fromCharCode.apply(null, receivedData);
     console.log(receivedString);
-    if (receivedString === "S") {
-      console.log("Shaken!");
-    }
   }
 
   const disconnect = () => {
@@ -93,13 +86,7 @@ const Bluetooth = () => {
       console.log('Disconnected from Bluetooth device');
     }
   };
-/*
-  useEffect(() => {
-    
-    return () => {
-      disconnect();
-    };
-  }, []);*/
+
   useEffect(() => {
     const handleBeforeUnload = (event) => {
       // Perform actions before the component unloads
@@ -132,6 +119,7 @@ const Bluetooth = () => {
       console.log("Sending data!");
       let encoder = new TextEncoder();
       await rxChara.writeValueWithoutResponse(encoder.encode(inputData + "\n"));
+      setInputData('');
       console.log("Data sent!");
     } catch (error) {
       console.log(error);
