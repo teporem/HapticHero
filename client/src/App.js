@@ -3,7 +3,7 @@ import Home from './components/Home';
 import Start from './components/Start';
 import Play from './components/Play';
 import Tutorial from './components/Tutorial.jsx';
-import { BrowserRouter as Router, Route, Link, Routes } from 'react-router-dom'
+import { HashRouter as Router, Route, Link, Routes } from 'react-router-dom'
 //import SerialCommunication from './components/SerialCommunication';
 import WebSerialAPI from './components/WebSerialAPI';
 import Bluetooth from './components/Bluetooth';
