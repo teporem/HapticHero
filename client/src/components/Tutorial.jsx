@@ -12,7 +12,7 @@ const Tutorial = () => {
         //const response = await axios.get('http://localhost:3001/songs/beatmap');
         //setSong({duration: 10 * 1000, beatmap: response.data });
         console.log(beatmap)
-        setSong({duration: 17 * 1000, beatmap: beatmap});
+        setSong({duration: 18 * 1000, beatmap: beatmap});
       } catch (error) {
         console.error('Error fetching beatmap data:', error);
       }
