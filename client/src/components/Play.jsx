@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import demo_audio from '../demo/purple_demo2.wav';
 let gameInterval;
 
-const Play = ({ song, tutorial }) => {
+const Play = ({ song, tutorial, bluetooth }) => {
   const [currentTime, setCurrentTime] = useState(0);
   const [countdown, setCountdown] = useState(3);
   const [currentNote, setCurrentNote] = useState({ time: 0, note: song.beatmap[0], played: false });
@@ -19,6 +19,21 @@ const Play = ({ song, tutorial }) => {
     longestStreak: 0,
     streakBroken: false
   });
+
+  const sendVibration = async (input) => {
+    console.log("Sending: ", input);
+    if (!bluetooth) {
+      console.log("No rxCharacterestic found.");
+      return;
+    }
+  
+    try {
+      let encoder = new TextEncoder();
+      await bluetooth.writeValueWithoutResponse(encoder.encode(input + "\n"));
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
     document.addEventListener("keydown", handleKeyPress);
@@ -62,6 +77,7 @@ const Play = ({ song, tutorial }) => {
         if (parseInt(time) <= c_time) {
           //handleMiss();
           c_note = { time: time, note: note, played: false };
+          sendVibration(note);
           setCurrentNote(c_note);
           currentNoteIndex++;
         }

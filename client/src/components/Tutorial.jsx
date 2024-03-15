@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Play from './Play';
 import beatmap from '../demo/purple_demo_beatmap2.json';
 
-const Tutorial = () => {
+const Tutorial = ({bluetooth}) => {
   const [song, setSong] = useState(null);
 
   useEffect(() => {
@@ -26,7 +26,7 @@ const Tutorial = () => {
     <div>
 
         {song ? (
-          <Play song={song} tutorial={true}/>
+          <Play song={song} tutorial={true} bluetooth={bluetooth}/>
         ): (
           <p>loading</p>
         )
