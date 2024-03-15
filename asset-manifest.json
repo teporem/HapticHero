@@ -1,19 +1,18 @@
 {
   "files": {
-    "main.css": "/HapticHero/static/css/main.726c3133.css",
-    "main.js": "/HapticHero/static/js/main.6f39826d.js",
+    "main.css": "/HapticHero/static/css/main.b84ee033.css",
+    "main.js": "/HapticHero/static/js/main.a67d6967.js",
     "static/js/787.d5fa4d18.chunk.js": "/HapticHero/static/js/787.d5fa4d18.chunk.js",
     "static/media/purple_demo2.wav": "/HapticHero/static/media/purple_demo2.b8e67a46ae19c5c27c6c.wav",
     "static/media/mascot-v2.svg": "/HapticHero/static/media/mascot-v2.0c868415f42882b953a6ac6306d19058.svg",
-    "static/media/logo.svg": "/HapticHero/static/media/logo.6ce24c58023cc2f8fd88fe9d219db6c6.svg",
     "index.html": "/HapticHero/index.html",
     "static/media/strings.svg": "/HapticHero/static/media/strings.e2dd5b4baa74a4d4c118.svg",
-    "main.726c3133.css.map": "/HapticHero/static/css/main.726c3133.css.map",
-    "main.6f39826d.js.map": "/HapticHero/static/js/main.6f39826d.js.map",
+    "main.b84ee033.css.map": "/HapticHero/static/css/main.b84ee033.css.map",
+    "main.a67d6967.js.map": "/HapticHero/static/js/main.a67d6967.js.map",
     "787.d5fa4d18.chunk.js.map": "/HapticHero/static/js/787.d5fa4d18.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.726c3133.css",
-    "static/js/main.6f39826d.js"
+    "static/css/main.b84ee033.css",
+    "static/js/main.a67d6967.js"
   ]
 }
