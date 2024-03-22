@@ -1,5 +1,7 @@
 import React from 'react';
 import '../App.css';
+import name from '../haptichero_font_2.png';
+
 /*
 Will have: 
 - settings icon
@@ -11,8 +13,8 @@ const Home = () => {
 	let demo = true;
 
 	return (
-		<div >
-			<h1>Haptic Hero</h1>
+		<div>
+			<h1><img className="main_title_img_2" src={name} alt="Haptic Hero"/></h1>
 		  { demo ? (
         <a href="#/tutorial">Start Tutorial</a>
       ) : (
