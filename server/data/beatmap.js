@@ -7,6 +7,7 @@ import esLib from 'essentia.js';
 import {PolarFFTWASM} from '../lib/polarFFT.module.js';
 import {OnsetsWASM} from '../lib/onsets.module.js';
 import * as wav from 'node-wav';
+import ffmpeg from 'fluent-ffmpeg';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -146,13 +147,34 @@ const createBeatmap = (onsets, pitches) => {
 };
   
 // analyzes audio and returns formatted data
-const analyzeAudio = (filePath) => {
+const analyzeAudio = async (filePath) => {
   try {
     const bufferSize = 512;
 
     //const audioPath = path.join(__dirname, filePath);
     //const audioBuffer = await loadFile(audioPath);
     //console.log(audioBuffer);
+
+    if (path.parse(filePath).ext.toLowerCase() === '.mp3') {
+      
+      await new Promise((resolve, reject) => {
+        ffmpeg('./uploads/' + filePath)
+          .toFormat('wav')
+          .on('error', (err) => {
+            console.error('An error occurred: ' + err.message);
+            reject(err);
+          })
+          .on('progress', (progress) => {
+            console.log('Processing: ' + progress.targetSize + ' KB converted');
+          })
+          .on('end', () => {
+            console.log('Processing finished!');
+            resolve();
+          })
+          .save('./uploads/' + path.parse(filePath).name + '.wav');
+      });
+      filePath = '../uploads/' + path.parse(filePath).name + '.wav';
+    }
 
     const audioPath = path.join(__dirname, filePath);
     console.log(`Analyzing ${audioPath}`);
@@ -176,8 +198,16 @@ const analyzeAudio = (filePath) => {
 
     const pitches = findPitches(onsets, audioBuffer);
     const beatmap = createBeatmap(onsetsMilliseconds, pitches);
-    console.log(beatmap);
-    return beatmap;
+    //console.log(beatmap);
+
+    const flooredBeatmap = {};
+
+    for (const time in beatmap) {
+      const flooredTime = Math.floor(parseFloat(time));
+      flooredBeatmap[flooredTime] = beatmap[time];
+    }
+    console.log(flooredBeatmap);
+    return flooredBeatmap;
   } catch (error) {
     throw `Error: ${error.message}`;
   }

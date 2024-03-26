@@ -17,9 +17,9 @@ export const searchSong = async (keyword) => {
   return [{name: "song1", link: "link1", audio: "audio1"}, {name: "song2", link: "link2", audio: "audio2"}];
 };
 
-export const generateBeatmap = (song) => {
+export const generateBeatmap = async (song) => {
   // song is filepath here for now
-  return analyzeAudio(song);
+  return await analyzeAudio(song);
 };
 
 
