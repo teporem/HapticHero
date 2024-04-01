@@ -1,4 +1,4 @@
-import { readFileSync } from 'fs';
+import { readFileSync, unlinkSync } from 'fs';
 import Meyda from 'meyda';
 import decode from 'audio-decode';
 import path from 'path';
@@ -154,7 +154,7 @@ const analyzeAudio = async (filePath) => {
     //const audioPath = path.join(__dirname, filePath);
     //const audioBuffer = await loadFile(audioPath);
     //console.log(audioBuffer);
-
+    let file_location = filePath;
     if (path.parse(filePath).ext.toLowerCase() === '.mp3') {
       
       await new Promise((resolve, reject) => {
@@ -173,10 +173,10 @@ const analyzeAudio = async (filePath) => {
           })
           .save('./uploads/' + path.parse(filePath).name + '.wav');
       });
-      filePath = '../uploads/' + path.parse(filePath).name + '.wav';
+      file_location = '../uploads/' + path.parse(filePath).name + '.wav';
     }
 
-    const audioPath = path.join(__dirname, filePath);
+    const audioPath = path.join(__dirname, file_location);
     console.log(`Analyzing ${audioPath}`);
     const fileBuffer = readFileSync(audioPath);
     const audioBuffer = wav.decode(fileBuffer);
@@ -207,6 +207,20 @@ const analyzeAudio = async (filePath) => {
       flooredBeatmap[flooredTime] = beatmap[time];
     }
     console.log(flooredBeatmap);
+    unlinkSync(audioPath, function (err) {            
+      if (err) {                                                 
+        console.error(err);                                    
+      }                                                          
+     console.log('File has been Deleted');                           
+    });   
+    if (file_location != filePath) {
+      unlinkSync(path.join(__dirname, filePath), function (err) {            
+        if (err) {                                                 
+          console.error(err);                                    
+        }                                                          
+       console.log('Orignal file has been Deleted');                           
+      });   
+    }
     return flooredBeatmap;
   } catch (error) {
     throw `Error: ${error.message}`;
