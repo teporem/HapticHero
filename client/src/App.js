@@ -21,7 +21,7 @@ function App() {
       <header className="App-header">
         <Routes>
           <Route path='/' element={<Start />}/>
-          <Route path='/home' element={<Home />}/>
+          <Route path='/home' element={<Home bluetooth={bluetoothConnection}/>}/>
           <Route path='/play' element={<Play song={song} tutorial={false} bluetooth={bluetoothConnection}/>} />
           <Route path='/tutorial' element={<Tutorial bluetooth={bluetoothConnection} />}></Route>
           <Route path='/bluetooth' element={<Bluetooth />}></Route>
