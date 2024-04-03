@@ -8,6 +8,7 @@ const Play = ({ song, tutorial, bluetooth }) => {
   const [currentNote, setCurrentNote] = useState({ time: 0, note: song.beatmap[0], played: false });
   const [score, setScore] = useState(0);
   const [audio] = useState(tutorial ? new Audio(demo_audio) : null);
+  const [receivedData, setReceivedData] = useState("");
 
   let c_time = -3000;
   let c_note = {time: 0, note: song.beatmap[0], played: false}
@@ -20,16 +21,20 @@ const Play = ({ song, tutorial, bluetooth }) => {
     streakBroken: false
   });
 
+  //if (bluetooth && bluetooth.tx) {
+   // bluetooth.tx.startNotifications();
+  //}
+
   const sendVibration = async (input) => {
     console.log("Sending: ", input);
-    if (!bluetooth) {
+    if (!bluetooth || !bluetooth.rx) {
       console.log("No rxCharacterestic found.");
       return;
     }
   
     try {
       let encoder = new TextEncoder();
-      await bluetooth.writeValueWithoutResponse(encoder.encode(input + "\n"));
+      await bluetooth.rx.writeValueWithoutResponse(encoder.encode(input + "\n"));
     } catch (error) {
       console.log(error);
     }
@@ -37,8 +42,30 @@ const Play = ({ song, tutorial, bluetooth }) => {
 
   useEffect(() => {
     document.addEventListener("keydown", handleKeyPress);
-    return () => document.removeEventListener("keydown", handleKeyPress);
+    if (bluetooth && bluetooth.tx) {
+      //bluetooth.tx.startNotifications();
+      bluetooth.tx.addEventListener(
+        "characteristicvaluechanged",
+        onTxCharacteristicValueChanged
+      );
+    }
+    
+    return () => {
+      document.removeEventListener("keydown", handleKeyPress);
+      if (bluetooth && bluetooth.tx) {
+        bluetooth.tx.removeEventListener("characteristicvaluechanged", onTxCharacteristicValueChanged);
+      }
+    }
+    
   });
+
+  function onTxCharacteristicValueChanged(event) {
+    console.log("TX characterestic change detected");
+    let data = event.target.value.getUint8(0);
+    setReceivedData(data);
+    handleButtonInput(data);
+    console.log(data);
+  }
 
   const startGame = () => {
     try {
@@ -185,6 +212,54 @@ const Play = ({ song, tutorial, bluetooth }) => {
     }
   };
 
+  const handleButtonInput = (btn) => {
+    switch (btn) {
+      case 1:
+        if ('A' === currentNote.note && Math.abs(currentTime - currentNote.time) <= 1000) {
+          currentNote.played ? handleMiss() : handleHit();
+          setCurrentNote(prevNote => ({ ...prevNote, played: true }));
+        } else {
+          console.log(`Missed note! ${currentTime} doesn't match ${currentNote.time} or ${currentNote.note} not A`);
+          handleMiss();
+          setCurrentNote(prevNote => ({ ...prevNote, played: true }));
+        }
+        break;
+      case 2:
+        if ('B' === currentNote.note && Math.abs(currentTime - currentNote.time) <= 1000) {
+          currentNote.played ? handleMiss() : handleHit();
+          setCurrentNote(prevNote => ({ ...prevNote, played: true }));
+        } else {
+          console.log(`Missed note! ${currentTime} doesn't match ${currentNote.time} or ${currentNote.note} not B`);
+          handleMiss();
+          setCurrentNote(prevNote => ({ ...prevNote, played: true }));
+        }
+        break;
+      case 3:
+        if ('C' === currentNote.note && Math.abs(currentTime - currentNote.time) <= 1000) {
+          currentNote.played ? handleMiss() : handleHit();
+          setCurrentNote(prevNote => ({ ...prevNote, played: true }));
+        } else {
+          console.log(`Missed note! ${currentTime} doesn't match ${currentNote.time} or ${currentNote.note} not C`);
+          handleMiss();
+          setCurrentNote(prevNote => ({ ...prevNote, played: true }));
+        }
+        break;
+      case 4:
+        if ('D' === currentNote.note && Math.abs(currentTime - currentNote.time) <= 1000) {
+          currentNote.played ? handleMiss() : handleHit();
+          setCurrentNote(prevNote => ({ ...prevNote, played: true }));
+        } else {
+          console.log(`Missed note! ${currentTime} doesn't match ${currentNote.time} or ${currentNote.note} not D`);
+          handleMiss();
+          setCurrentNote(prevNote => ({ ...prevNote, played: true }));
+        }
+        break;
+      default:
+        // Ignore other key presses
+        break;
+    }
+  };
+
   const handlePlayButtonClick = () => {
     setCountdown(3);
     stopAudio();
@@ -213,6 +288,7 @@ const Play = ({ song, tutorial, bluetooth }) => {
             <p>Current Note: {currentNote.note}</p>
             <p>Hits: {stats.hit}; Misses: {stats.miss}; Longest Combo: {stats.longestStreak}</p>
             <p>Score: {score + stats.longestStreak}</p>
+            <p>Received: {receivedData}</p>
             </div>
             )
           : (<div>  

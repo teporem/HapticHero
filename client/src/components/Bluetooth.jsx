@@ -11,6 +11,7 @@ const Bluetooth = () => {
   const [inputData, setInputData] = useState('');
   const [inputFile, setInputFile] = useState(null);
   const [rxChara, setRxChara] = useState(null);
+  const [receivedData, setReceivedData] = useState("");
 
   // https://lancaster-university.github.io/microbit-docs/resources/bluetooth/bluetooth_profile.html
   // An implementation of Nordic Semicondutor's UART/Serial Port Emulation over Bluetooth low energy
@@ -29,7 +30,7 @@ const Bluetooth = () => {
       if (device) return;
       const options = {
         filters: [
-          { name: "CIRCUITPY015a" },
+          { name: "Haptic Hero Controller" },
         ],
         optionalServices: [
             UART_SERVICE_UUID
@@ -48,15 +49,23 @@ const Bluetooth = () => {
       const ble_service = await ble_server.getPrimaryService(UART_SERVICE_UUID);
       setService(ble_service);
       console.log("Got primary service.");
-      /*
-      const txCharacteristic = await service.getCharacteristic(
-        UART_TX_CHARACTERISTIC_UUID
-      );
-      txCharacteristic.startNotifications();
-      txCharacteristic.addEventListener(
-        "characteristicvaluechanged",
-        onTxCharacteristicValueChanged
-      );*/
+      try {
+        console.log("trying to get txcharacterestic");
+        const txCharacteristic = await ble_service.getCharacteristic(
+          UART_TX_CHARACTERISTIC_UUID
+        );
+        console.log("got tx characteresticm starting notifications...")
+        txCharacteristic.startNotifications();
+        console.log("got notifications, adding event listener...")
+        txCharacteristic.addEventListener(
+          "characteristicvaluechanged",
+          onTxCharacteristicValueChanged
+        );
+        console.log("everything should be good for tx characterstic");
+       } catch (e) {
+        console.log("failed to get tx characterestic");
+       }
+      
       rxCharacteristic = await ble_service.getCharacteristic(
         UART_RX_CHARACTERISTIC_UUID
       );
@@ -69,13 +78,16 @@ const Bluetooth = () => {
   };
 
   function onTxCharacteristicValueChanged(event) {
-    let receivedData = [];
+    console.log("TX characterestic change detected");
+    /*let receivedData = [];
     for (var i = 0; i < event.target.value.byteLength; i++) {
       receivedData[i] = event.target.value.getUint8(i);
-    }
-  
-    const receivedString = String.fromCharCode.apply(null, receivedData);
-    console.log(receivedString);
+    }*/
+    let receivedData = event.target.value.getUint8(0);
+    setReceivedData(receivedData);
+    //const receivedString = String.fromCharCode.apply(null, receivedData);
+    //console.log(receivedString);
+    console.log(receivedData);
   }
 
   const disconnect = () => {
@@ -147,6 +159,7 @@ const Bluetooth = () => {
       <br />
       <input type="file" onChange={handleFileInputChange} />
       <button onClick={sendAudioData}>Send Audio Data</button>
+      <span>{receivedData}</span>
     </div>
   );
 };

@@ -8,6 +8,7 @@ const BluetoothIcon = ({onConnect}) => {
   const [service, setService] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
   const [rxChara, setRxChara] = useState(null);
+  const [receivedData, setReceivedData] = useState("");
 
   const UART_SERVICE_UUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
 
@@ -24,7 +25,7 @@ const BluetoothIcon = ({onConnect}) => {
       if (device) return;
       const options = {
         filters: [
-          { name: "CIRCUITPY015a" },
+          { name: "Haptic Hero Controller" },
         ],
         optionalServices: [
             UART_SERVICE_UUID
@@ -43,17 +44,40 @@ const BluetoothIcon = ({onConnect}) => {
       const ble_service = await ble_server.getPrimaryService(UART_SERVICE_UUID);
       setService(ble_service);
       console.log("Got primary service.");
+
+      
+        console.log("trying to get txcharacterestic");
+        const txCharacteristic = await ble_service.getCharacteristic(
+          UART_TX_CHARACTERISTIC_UUID
+        );
+        console.log("got tx characteresticm starting notifications...")
+        txCharacteristic.startNotifications();
+        //console.log("got notifications, adding event listener...")
+        /*txCharacteristic.addEventListener(
+          "characteristicvaluechanged",
+          onTxCharacteristicValueChanged
+        );*/
+        //console.log("everything should be good for tx characterstic");
+       
+
       rxCharacteristic = await ble_service.getCharacteristic(
         UART_RX_CHARACTERISTIC_UUID
       );
       setRxChara(rxCharacteristic);
-      onConnect(rxCharacteristic);
+      onConnect({rx: rxCharacteristic, tx: txCharacteristic});
       console.log('Connected to Bluetooth device');
     } catch (error) {
       console.error('Error connecting to Bluetooth device:', error);
       setIsConnected(false);
     }
   };
+
+  function onTxCharacteristicValueChanged(event) {
+    console.log("TX characterestic change detected");
+    let data = event.target.value.getUint8(0);
+    setReceivedData(receivedData);
+    console.log(data);
+  }
 
   const disconnect = () => {
     if (!device) return;
