@@ -10,6 +10,8 @@ const Play = ({ song, tutorial, bluetooth }) => {
   const [audio] = useState(tutorial ? new Audio(demo_audio) : null);
   const [receivedData, setReceivedData] = useState("");
 
+  const delay = 1000; 
+
   let c_time = -3000;
   let c_note = {time: 0, note: song.beatmap[0], played: false}
 
@@ -20,10 +22,6 @@ const Play = ({ song, tutorial, bluetooth }) => {
     longestStreak: 0,
     streakBroken: false
   });
-
-  //if (bluetooth && bluetooth.tx) {
-   // bluetooth.tx.startNotifications();
-  //}
 
   const sendVibration = async (input) => {
     console.log("Sending: ", input);
@@ -84,8 +82,11 @@ const Play = ({ song, tutorial, bluetooth }) => {
     if (gameInterval) {
       clearInterval(gameInterval);
     }
-    const beatmapEntries = Object.entries(song.beatmap);
-    //console.log(beatmapEntries);
+    const beatmapEntries = Object.entries(song.beatmap).map(([index, value]) => {
+      const newIndex = parseInt(index) - delay;
+      return [newIndex.toString(), value];
+    });
+    console.log(beatmapEntries);
     let currentNoteIndex = 0;
 
     gameInterval = setInterval(() => {
@@ -101,9 +102,12 @@ const Play = ({ song, tutorial, bluetooth }) => {
         const [time, note] = beatmapEntries[currentNoteIndex];
         //console.log(`Expected Note at ${time}: ${note}`);
         //every 100ms, check if there's a new upcoming note to expect
+        //if (parseInt(time) <= c_time+500) {
+        //  sendVibration(note);
+        //}
         if (parseInt(time) <= c_time) {
           //handleMiss();
-          c_note = { time: time, note: note, played: false };
+          c_note = { time: (parseInt(time) + delay).toString(), note: note, played: false };
           sendVibration(note);
           setCurrentNote(c_note);
           currentNoteIndex++;
@@ -285,13 +289,13 @@ const Play = ({ song, tutorial, bluetooth }) => {
           { tutorial ? (       
             <div>
             <p>Current Time: {currentTime}ms</p>
-            <p>Current Note: {currentNote.note}</p>
+            <p>Incoming Note: {currentNote.note}</p>
             <p>Hits: {stats.hit}; Misses: {stats.miss}; Longest Combo: {stats.longestStreak}</p>
             <p>Score: {score + stats.longestStreak}</p>
-            <p>Received: {receivedData}</p>
             </div>
             )
           : (<div>  
+              <p>Hits: {stats.hit}; Misses: {stats.miss}; Longest Combo: {stats.longestStreak}</p>
               <p>Score: {score + stats.longestStreak}</p>
             </div>)
           }
