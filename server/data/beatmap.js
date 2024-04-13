@@ -179,6 +179,7 @@ const analyzeAudio = async (filePath) => {
     const audioPath = path.join(__dirname, file_location);
     console.log(`Analyzing ${audioPath}`);
     const fileBuffer = readFileSync(audioPath);
+    console.log('Decoding wav file from fileBuffer.');
     const audioBuffer = wav.decode(fileBuffer);
     //const audioBuffer = await loadFile(audioPath); uses _channelData
 
@@ -191,11 +192,11 @@ const analyzeAudio = async (filePath) => {
     const audioDownMixed = essentia.MonoMixer(audioLeftChannelData, audioRightChannelData).audio;
     const audioData = essentia.vectorToArray(audioDownMixed);
     */ 
-
+    console.log("Finding onsets from audioBuffer.");
     const onsets = findOnsets(audioBuffer);
     const onsetsMilliseconds = onsets.map(seconds => seconds * 1000);
     //console.log(onsetsMilliseconds);
-
+    console.log("Finding relative pitches from onsets and audioBuffer.");
     const pitches = findPitches(onsets, audioBuffer);
     const beatmap = createBeatmap(onsetsMilliseconds, pitches);
     //console.log(beatmap);
