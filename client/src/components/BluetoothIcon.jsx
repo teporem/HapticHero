@@ -95,7 +95,7 @@ const BluetoothIcon = ({onConnect}) => {
   return (
     <div>
       {isConnected ? (
-        <button onClick={disconnect}>Disconnect</button>
+        null
       ) : (
         <button onClick={connect}>Connect to Bluetooth</button>
       )}

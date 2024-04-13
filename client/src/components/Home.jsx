@@ -59,15 +59,17 @@ const Home = ({bluetooth}) => {
 			(
 				<div>
           <h1><img className="main_title_img_2" src={name} alt="Haptic Hero"/></h1>
-          {error ? <p className='error'>Invalid file.</p> : null}
+          {error ? <p className='error'>Failed to upload song and generate beatmap.</p> : null}
+          <div className="upload-sec">
           <form onSubmit={handleSubmit}>
             <label htmlFor='selected-song' >Selected Song: </label>
             <input type='file' name='file' id='audio-file' onChange={handleFileChange} required></input>
-            <button type='submit'>Submit</button>
+            <button type='submit'>Upload</button>
           </form>
           <button onClick={handleStart} disabled={!canPlay}>Start Game</button>
           <br/>
-          <a href="#/tutorial">Start Tutorial</a>
+          </div>
+          <a className="link-button" href="#/tutorial">Start Tutorial</a>
 			  </div>
 			)}
 			</div>
