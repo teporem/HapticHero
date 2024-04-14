@@ -33,39 +33,35 @@ const Home = ({bluetooth}) => {
     formData.append('file', file.data);
     try {
       await axios.get('http://ec2-18-118-227-233.us-east-2.compute.amazonaws.com:3001'); 
+      const response = await axios.post('http://ec2-18-118-227-233.us-east-2.compute.amazonaws.com:3001/upload', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+      })
+      if (response) {
+        setError(false);
+        let song = {duration: 10 * 1000, beatmap: response.data };
+        console.log(song)
+        setSong(song);
+        setCanPlay(true);
+        setLoading(false);
+      }
     } catch (e) {
       try {
         console.log(e);
-        if (e.response.status === 404) {
-          // homepage should return "not found"
-          const response = await axios.post('http://ec2-18-118-227-233.us-east-2.compute.amazonaws.com:3001/upload', formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data'
-            }
-            })
-            if (response) {
-                setError(false);
-                let song = {duration: 10 * 1000, beatmap: response.data };
-                console.log(song)
-                setSong(song);
-                setCanPlay(true);
-                setLoading(false);
-            }
-        } else {
-          // if the server isn't up, check locally
-          const response = await axios.post('http://localhost:3001/upload', formData, {
-          headers: {
-              'Content-Type': 'multipart/form-data'
-          }
-          })
-          if (response) {
-              setError(false);
-              let song = {duration: 10 * 1000, beatmap: response.data };
-              console.log(song)
-              setSong(song);
-              setCanPlay(true);
-              setLoading(false);
-          }
+        // if the server isn't up, check locally
+        const response = await axios.post('http://localhost:3001/upload', formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+        })
+        if (response) {
+            setError(false);
+            let song = {duration: 10 * 1000, beatmap: response.data };
+            console.log(song)
+            setSong(song);
+            setCanPlay(true);
+            setLoading(false);
         }
       } catch (e) {
         // if neither sites are up
