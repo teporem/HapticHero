@@ -10,7 +10,7 @@ const Play = ({ song, tutorial, bluetooth }) => {
   const [audio] = useState(tutorial ? new Audio(demo_audio) : null);
   const [receivedData, setReceivedData] = useState("");
 
-  const delay = 1000; 
+  const delay = 500; 
 
   let c_time = -3000;
   let c_note = {time: 0, note: song.beatmap[0], played: false}
