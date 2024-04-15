@@ -1,3 +1,4 @@
+// Used for testing bluetooth capabilities
 import React, { useState, useEffect } from 'react';
 
 //let ble_device;
