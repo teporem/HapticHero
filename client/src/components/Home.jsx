@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../App.css';
 import name from '../haptichero_font_2.png';
 import Play from './Play';
@@ -12,6 +12,14 @@ const Home = ({bluetooth}) => {
   const [error, setError] = useState(false);
   const [canPlay, setCanPlay] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    return () => {
+      if (file) {
+        URL.revokeObjectURL(file.preview);
+      }
+    };
+  }, [file]);
 
   const handleStart = () => {
     setPlaying(true);
@@ -40,7 +48,7 @@ const Home = ({bluetooth}) => {
       })
       if (response) {
         setError(false);
-        let song = {duration: 10 * 1000, beatmap: response.data };
+        let song = {duration: 10 * 1000, beatmap: response.data, audio: file.preview };
         console.log(song)
         setSong(song);
         setCanPlay(true);
@@ -57,7 +65,7 @@ const Home = ({bluetooth}) => {
         })
         if (response) {
             setError(false);
-            let song = {duration: 10 * 1000, beatmap: response.data };
+            let song = {duration: 10 * 1000, beatmap: response.data, audio: file.preview };
             console.log(song)
             setSong(song);
             setCanPlay(true);
