@@ -9,7 +9,7 @@ const configRoutes = (app) => {
   app.use('/settings',settingsRoutes);
   app.use('/serial',serialRoutes);
   app.use('*', (req, res) => {
-    res.sendStatus(404);
+    return res.status(200).json({ status: "Connected" });
   });
 };
   
