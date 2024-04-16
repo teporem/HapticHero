@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+//import createjs from 'soundjs';
 import demo_audio from '../demo/purple_demo2.wav';
 let gameInterval;
 
@@ -7,7 +8,7 @@ const Play = ({ song, tutorial, bluetooth }) => {
   const [countdown, setCountdown] = useState(3);
   const [currentNote, setCurrentNote] = useState({ time: 0, note: song.beatmap[0], played: false });
   const [score, setScore] = useState(0);
-  const [audio] = useState(tutorial ? new Audio(demo_audio) : null);
+  const [audio] = useState(new Audio(song.audio));
   const [receivedData, setReceivedData] = useState("");
 
   const delay = 500; 
@@ -118,6 +119,7 @@ const Play = ({ song, tutorial, bluetooth }) => {
     const clearTimer = () => clearInterval(gameInterval);
 
     setTimeout(() => {
+      stopAudio();
       clearTimer();
       if (document.fullscreenElement) {
       document.exitFullscreen();

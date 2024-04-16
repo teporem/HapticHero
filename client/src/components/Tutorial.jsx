@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Play from './Play';
 import beatmap from '../demo/purple_demo_beatmap2.json';
+import demo_audio from '../demo/purple_demo2.wav';
 
 const Tutorial = ({bluetooth}) => {
   const [song, setSong] = useState(null);
@@ -12,7 +13,7 @@ const Tutorial = ({bluetooth}) => {
         //const response = await axios.get('http://localhost:3001/songs/beatmap');
         //setSong({duration: 10 * 1000, beatmap: response.data });
         console.log(beatmap)
-        setSong({duration: 18 * 1000, beatmap: beatmap});
+        setSong({duration: 18 * 1000, beatmap: beatmap, audio: demo_audio});
       } catch (error) {
         console.error('Error fetching beatmap data:', error);
       }
