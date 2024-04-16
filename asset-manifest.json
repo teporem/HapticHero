@@ -1,18 +1,18 @@
 {
   "files": {
-    "main.css": "/HapticHero/static/css/main.3b5b8e05.css",
-    "main.js": "/HapticHero/static/js/main.2432bb84.js",
-    "static/js/787.d5fa4d18.chunk.js": "/HapticHero/static/js/787.d5fa4d18.chunk.js",
-    "static/media/purple_demo2.wav": "/HapticHero/static/media/purple_demo2.b8e67a46ae19c5c27c6c.wav",
-    "static/media/mascot-v2.svg": "/HapticHero/static/media/mascot-v2.0c868415f42882b953a6ac6306d19058.svg",
-    "index.html": "/HapticHero/index.html",
-    "static/media/strings.svg": "/HapticHero/static/media/strings.e2dd5b4baa74a4d4c118.svg",
-    "main.3b5b8e05.css.map": "/HapticHero/static/css/main.3b5b8e05.css.map",
-    "main.2432bb84.js.map": "/HapticHero/static/js/main.2432bb84.js.map",
-    "787.d5fa4d18.chunk.js.map": "/HapticHero/static/js/787.d5fa4d18.chunk.js.map"
+    "main.css": "/static/css/main.89c3728e.css",
+    "main.js": "/static/js/main.d14257b9.js",
+    "static/js/787.d5fa4d18.chunk.js": "/static/js/787.d5fa4d18.chunk.js",
+    "static/media/purple_demo2.wav": "/static/media/purple_demo2.b8e67a46ae19c5c27c6c.wav",
+    "static/media/mascot-v2.svg": "/static/media/mascot-v2.0c868415f42882b953a6ac6306d19058.svg",
+    "index.html": "/index.html",
+    "static/media/strings.svg": "/static/media/strings.e2dd5b4baa74a4d4c118.svg",
+    "main.89c3728e.css.map": "/static/css/main.89c3728e.css.map",
+    "main.d14257b9.js.map": "/static/js/main.d14257b9.js.map",
+    "787.d5fa4d18.chunk.js.map": "/static/js/787.d5fa4d18.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.3b5b8e05.css",
-    "static/js/main.2432bb84.js"
+    "static/css/main.89c3728e.css",
+    "static/js/main.d14257b9.js"
   ]
 }
