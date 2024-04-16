@@ -1,40 +1,170 @@
 import React, { useState, useEffect } from 'react';
+//import createjs from 'soundjs';
+import demo_audio from '../demo/purple_demo2.wav';
 let gameInterval;
 
-const Play = ({ song }) => {
+const Play = ({ song, tutorial, bluetooth }) => {
   const [currentTime, setCurrentTime] = useState(0);
   const [countdown, setCountdown] = useState(3);
-  const [currentNote, setCurrentNote] = useState({ time: 0, note: song.beatmap[0] });
+  const [currentNote, setCurrentNote] = useState({ time: 0, note: song.beatmap[0], played: false });
   const [score, setScore] = useState(0);
-  let c_time = 0;
-  let c_note = {time: 0, note: song.beatmap[0]}
+  const [audio] = useState(new Audio(song.audio));
+  //const [receivedData, setReceivedData] = useState("");
+  const [recentButton, setRecentButton] = useState(null);
+  //const [swipe, setSwipe] = useState("");
+
+  const delay = 500; 
+
+  let c_time = -3000;
+  let c_note = {time: 0, note: song.beatmap[0], played: false}
+
+  var xDown = null;                                                        
+  var yDown = null; 
+
+  const [stats, setStats] = useState({
+    hit: 0,
+    miss: 0,
+    currentStreak: 0,
+    longestStreak: 0,
+    streakBroken: false
+  });
+
+  const sendVibration = async (input) => {
+    console.log("Sending: ", input);
+    if (!bluetooth || !bluetooth.rx) {
+      console.log("No rxCharacterestic found.");
+      return;
+    }
+  
+    try {
+      let encoder = new TextEncoder();
+      await bluetooth.rx.writeValueWithoutResponse(encoder.encode(input + "\n"));
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener('touchstart', handleTouchStart, false);        
+    document.addEventListener('touchmove', handleTouchMove, false);
+    document.addEventListener("keydown", handleKeyPress);
+    if (bluetooth && bluetooth.tx) {
+      //bluetooth.tx.startNotifications();
+      bluetooth.tx.addEventListener(
+        "characteristicvaluechanged",
+        onTxCharacteristicValueChanged
+      );
+    }
+    
+    return () => {
+      document.removeEventListener('touchstart', handleTouchStart, false);        
+      document.removeEventListener('touchmove', handleTouchMove, false);
+      document.removeEventListener("keydown", handleKeyPress);
+      if (bluetooth && bluetooth.tx) {
+        bluetooth.tx.removeEventListener("characteristicvaluechanged", onTxCharacteristicValueChanged);
+      }
+    }
+    
+  });
+
+  function handleTouchStart(evt) {                                         
+    xDown = evt.touches[0].clientX;                                      
+    yDown = evt.touches[0].clientY;                                      
+};                                                
+
+function handleTouchMove(evt) {
+    if ( !xDown || !yDown ) {
+      return;
+    }
+    var xUp = evt.touches[0].clientX;                                    
+    var yUp = evt.touches[0].clientY;
+
+    var xDiff = xDown - xUp;
+    var yDiff = yDown - yUp;
+
+    if ( Math.abs( xDiff ) > Math.abs( yDiff ) ) {
+        if ( xDiff > 0 ) {
+            console.log("swiped left");
+            //setSwipe("left");
+            if (recentButton) {
+              handleButtonInput(recentButton);
+              setRecentButton(null);
+            }
+        } else {
+            console.log("swiped right");
+            //setSwipe("right");
+            if (recentButton) {
+              handleButtonInput(recentButton);
+              setRecentButton(null);
+            }
+        }                       
+    } else {
+        if ( yDiff > 0 ) {
+            console.log("swiped up");
+            //setSwipe("up");
+        } else { 
+            console.log("Swiped down");
+            //setSwipe("down");
+        }                                                                 
+    }
+    xDown = null;
+    yDown = null;                                             
+};
+
+  function onTxCharacteristicValueChanged(event) {
+    console.log("TX characterestic change detected");
+    let data = event.target.value.getUint8(0);
+    //setReceivedData(data);
+    setRecentButton(data);
+    //handleButtonInput(data);
+    console.log(data);
+  }
 
   const startGame = () => {
-    setCurrentTime(0);
-    setScore(0);
+    try {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+      } 
+    } catch(e) {
+      console.log("No fullscreen capability on this device.");
+    }
     
-    document.addEventListener('keyup', handleKeyPress);
+    setCurrentTime(-3000);
+
+    setScore(0);
+    setStats({hit:0, miss:0, currentStreak:0, longestStreak:0});
 
     if (gameInterval) {
       clearInterval(gameInterval);
     }
-    // play audio
-    // const audio = new Audio(song.audio);
-    // audio.play();
-
-    const beatmapEntries = Object.entries(song.beatmap);
-    //console.log(beatmapEntries);
+    const beatmapEntries = Object.entries(song.beatmap).map(([index, value]) => {
+      const newIndex = parseInt(index) - delay;
+      return [newIndex.toString(), value];
+    });
+    console.log(beatmapEntries);
     let currentNoteIndex = 0;
 
     gameInterval = setInterval(() => {
+      if (c_time === -2000 || c_time === -1000 || c_time === 0) {
+        setCountdown((prev) => prev - 1);
+      }
+      if (c_time === 0) {
+        playAudio();
+      }
       setCurrentTime((prev) => prev + 100);
       c_time = c_time + 100;
       if (currentNoteIndex < beatmapEntries.length) {
         const [time, note] = beatmapEntries[currentNoteIndex];
         //console.log(`Expected Note at ${time}: ${note}`);
+        //every 100ms, check if there's a new upcoming note to expect
+        //if (parseInt(time) <= c_time+500) {
+        //  sendVibration(note);
+        //}
         if (parseInt(time) <= c_time) {
-          setCurrentNote({ time: time, note: note });
-          c_note = { time: time, note: note };
+          //handleMiss();
+          c_note = { time: (parseInt(time) + delay).toString(), note: note, played: false };
+          sendVibration(note);
+          setCurrentNote(c_note);
           currentNoteIndex++;
         }
       }
@@ -43,44 +173,121 @@ const Play = ({ song }) => {
     const clearTimer = () => clearInterval(gameInterval);
 
     setTimeout(() => {
+      stopAudio();
       clearTimer();
-    }, song.duration);
+      if (document.fullscreenElement) {
+      document.exitFullscreen();
+    }
+    }, song.duration + 3000);
 
-    return clearTimer;
+    
+
+    return;
+  };
+
+  const stopAudio = () => {
+    if (audio && !audio.paused) {
+      audio.pause(); 
+      audio.currentTime = 0; 
+    }
+  }
+
+  const playAudio = () => {
+    if (audio) {
+      audio.play();
+    }
+  };
+
+  const handleMiss = () => {
+    if (!currentNote.played) {
+      //setScore((prev) => prev - 1);
+      setStats(prevStats => ({
+        ...prevStats,
+        miss: prevStats.miss + 1,
+        currentStreak: 0,
+      }));
+    }
+    console.log(`Score is: ${score + stats.longestStreak}`);
+  };
+
+  const handleHit = () => {
+    console.log('Note played accurately!');
+    setScore((prev) => prev + 1);
+    setStats(prevStats => ({
+      ...prevStats,
+      hit: prevStats.hit + 1,
+      currentStreak: prevStats.currentStreak + 1,
+      longestStreak:
+        prevStats.currentStreak+1 > prevStats.longestStreak
+        ? prevStats.currentStreak+1 : prevStats.longestStreak
+    }));
+    console.log(`Score is: ${score + stats.longestStreak}`);
   };
 
   const handleKeyPress = (event) => {
     switch (event.key) {
       case 'ArrowUp':
-        if ('A' === c_note.note && Math.abs(c_time - c_note.time) <= 1000) {
-          console.log('Note played accurately!');
-          setScore((prev) => prev + 10);
-        } else {
-          console.log(`Missed note! ${c_time} doesn't match ${c_note.time} or ${c_note.note} not A`);
-        }
+        setRecentButton(1);
+        console.log(recentButton);
         break;
       case 'ArrowDown':
-        if ('B' === c_note.note && Math.abs(c_time - c_note.time) <= 1000) {
-          console.log('Note played accurately!');
-          setScore((prev) => prev + 10);
-        } else {
-          console.log(`Missed note! ${c_time} doesn't match ${c_note.time} or ${c_note.note} not B`);
-        }
+        setRecentButton(2);
+        console.log(recentButton);
         break;
       case 'ArrowLeft':
-        if ('C' === c_note.note && Math.abs(c_time - c_note.time) <= 1000) {
-          console.log('Note played accurately!');
-          setScore((prev) => prev + 10);
-        } else {
-          console.log(`Missed note! ${c_time} doesn't match ${c_note.time} or ${c_note.note} not C`);
-        }
+        setRecentButton(3);
+        console.log(recentButton);
         break;
       case 'ArrowRight':
-        if ('D' === c_note.note && Math.abs(c_time - c_note.time) <= 1000) {
-          console.log('Note played accurately!');
-          setScore((prev) => prev + 10);
+        setRecentButton(4);
+        console.log(recentButton);
+        break;
+      default:
+        // Ignore other key presses
+        break;
+    }
+  };
+
+  const handleButtonInput = (btn) => {
+    switch (btn) {
+      case 1:
+        if ('A' === currentNote.note && Math.abs(currentTime - currentNote.time) <= 1000) {
+          currentNote.played ? handleMiss() : handleHit();
+          setCurrentNote(prevNote => ({ ...prevNote, played: true }));
         } else {
-          console.log(`Missed note! ${c_time} doesn't match ${c_note.time} or ${c_note.note} not D`);
+          console.log(`Missed note! ${currentTime} doesn't match ${currentNote.time} or ${currentNote.note} not A`);
+          handleMiss();
+          setCurrentNote(prevNote => ({ ...prevNote, played: true }));
+        }
+        break;
+      case 2:
+        if ('B' === currentNote.note && Math.abs(currentTime - currentNote.time) <= 1000) {
+          currentNote.played ? handleMiss() : handleHit();
+          setCurrentNote(prevNote => ({ ...prevNote, played: true }));
+        } else {
+          console.log(`Missed note! ${currentTime} doesn't match ${currentNote.time} or ${currentNote.note} not B`);
+          handleMiss();
+          setCurrentNote(prevNote => ({ ...prevNote, played: true }));
+        }
+        break;
+      case 3:
+        if ('C' === currentNote.note && Math.abs(currentTime - currentNote.time) <= 1000) {
+          currentNote.played ? handleMiss() : handleHit();
+          setCurrentNote(prevNote => ({ ...prevNote, played: true }));
+        } else {
+          console.log(`Missed note! ${currentTime} doesn't match ${currentNote.time} or ${currentNote.note} not C`);
+          handleMiss();
+          setCurrentNote(prevNote => ({ ...prevNote, played: true }));
+        }
+        break;
+      case 4:
+        if ('D' === currentNote.note && Math.abs(currentTime - currentNote.time) <= 1000) {
+          currentNote.played ? handleMiss() : handleHit();
+          setCurrentNote(prevNote => ({ ...prevNote, played: true }));
+        } else {
+          console.log(`Missed note! ${currentTime} doesn't match ${currentNote.time} or ${currentNote.note} not D`);
+          handleMiss();
+          setCurrentNote(prevNote => ({ ...prevNote, played: true }));
         }
         break;
       default:
@@ -91,32 +298,44 @@ const Play = ({ song }) => {
 
   const handlePlayButtonClick = () => {
     setCountdown(3);
-
-    const countdownInterval = setInterval(() => {
-      setCountdown((prev) => prev - 1);
-    }, 1000);
-
-    setTimeout(() => {
-      clearInterval(countdownInterval);
-      startGame();
-    }, 3000);
+    stopAudio();
+    startGame();
   };
 
   return (
-    <div>
+    <div className="Play">
+      { tutorial ? (       
+        <div><h1>Tutorial mode</h1>
+        </div>
+        )
+      : (<div></div>)
+      }
+
       <button onClick={handlePlayButtonClick}>Play</button>
       {countdown > 0 ? (
         <div>
-          <div>{countdown}</div>
+          <p>{countdown}</p>
         </div>
       ) : (
         <div>
-          <p>Game is now playing!</p>
-          <p>Current Time: {currentTime}ms</p>
-          <p>Current Note {currentNote.note}</p>
-          <p>Score: {score}</p>
+          { tutorial ? (       
+            <div>
+            <p>Current Time: {currentTime}ms</p>
+            <p>Incoming Note: {currentNote.note}</p>
+            <p>Hits: {stats.hit}; Misses: {stats.miss}; Longest Combo: {stats.longestStreak}</p>
+            <p>Score: {score + stats.longestStreak}</p>
+            </div>
+            )
+          : (<div>  
+              <p>Hits: {stats.hit}; Misses: {stats.miss}; Longest Combo: {stats.longestStreak}</p>
+              <p>Score: {score + stats.longestStreak}</p>
+            </div>)
+          }
         </div>
-      )}
+      )
+        
+        
+      }
     </div>
   );
 };

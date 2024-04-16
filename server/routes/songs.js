@@ -16,7 +16,7 @@ router
     .route('/beatmap')
     .get(async (req, res) => {
       try {
-        const beatmap = songs.generateBeatmap('../songs/StreetChicken.wav');
+        const beatmap = songs.generateBeatmap('../songs/purple_demo2.wav');
         return res.json(beatmap);
       } catch (error) {
         console.error(error);
