@@ -13,7 +13,7 @@ const __dirname = path.dirname(__filename);
 const app = express();
 app.use(cors({
   credentials: true,
-  origin: ['http://localhost:3000','https://teporem.github.io']
+  origin: ['http://localhost:3000','https://teporem.github.io', 'https://www.haptichero.site', 'https://haptichero.site']
 }
 ));
 app.use(express.json());
