@@ -7,7 +7,7 @@ const Start = () => {
   return (
     <div>
         <h1><img className="main_title_img" src={name} alt="Haptic Hero"/></h1>
-        <a href="#/home">Tap to Start</a>
+        <a className="link-button" href="#/home">Tap to Start</a>
         <img className="svg" src={logo} alt="Haptic Hero mascot" />
     </div>
   );
