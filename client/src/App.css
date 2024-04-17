@@ -6,7 +6,7 @@
   background-image: url("strings.svg");
   background-repeat: repeat-y;
   min-height: 100vh;
-  width: 100vh;
+  min-width: 100%;
   background-size: contain;
   background-position: center;
   

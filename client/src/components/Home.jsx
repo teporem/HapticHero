@@ -40,8 +40,8 @@ const Home = ({bluetooth}) => {
     let formData = new FormData();
     formData.append('file', file.data);
     try {
-      await axios.get('http://ec2-18-118-227-233.us-east-2.compute.amazonaws.com:3001'); 
-      const response = await axios.post('http://ec2-18-118-227-233.us-east-2.compute.amazonaws.com:3001/upload', formData, {
+      await axios.get('https://server.haptichero.site'); // should return status: "Connected"
+      const response = await axios.post('https://server.haptichero.site/upload', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }

@@ -291,7 +291,8 @@ function handleTouchMove(evt) {
         }
         break;
       default:
-        // Ignore other key presses
+        console.log(`Missed note! No valid note detected.`);
+        handleMiss();
         break;
     }
   };
