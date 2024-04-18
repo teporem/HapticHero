@@ -20,7 +20,6 @@ const Play = ({ song, tutorial, bluetooth }) => {
   const acceptable_range = 500; // notes within .5s of expected time are accepted
   let c_time = -3000;
   let c_note = {time: 0, note: song.beatmap[0], played: false}
-  audio.load();
 
   var xDown = null;                                                        
   var yDown = null; 
