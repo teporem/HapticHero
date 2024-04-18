@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 //import createjs from 'soundjs';
-import demo_audio from '../demo/purple_demo2.wav';
+
 let gameInterval;
+let acceptableTimes = [];
+let acceptableNotes = [];
 
 const Play = ({ song, tutorial, bluetooth }) => {
   const [currentTime, setCurrentTime] = useState(0);
@@ -11,12 +13,14 @@ const Play = ({ song, tutorial, bluetooth }) => {
   const [audio] = useState(new Audio(song.audio));
   //const [receivedData, setReceivedData] = useState("");
   const [recentButton, setRecentButton] = useState(null);
+  const [gameOngoing, setGameOngoing] = useState(false);
   //const [swipe, setSwipe] = useState("");
 
-  const delay = 500; 
-
+  const delay = 500; // vibrations are sent .5s earlier than expected in song/play
+  const acceptable_range = 500; // notes within .5s of expected time are accepted
   let c_time = -3000;
   let c_note = {time: 0, note: song.beatmap[0], played: false}
+
 
   var xDown = null;                                                        
   var yDown = null; 
@@ -70,46 +74,46 @@ const Play = ({ song, tutorial, bluetooth }) => {
   function handleTouchStart(evt) {                                         
     xDown = evt.touches[0].clientX;                                      
     yDown = evt.touches[0].clientY;                                      
-};                                                
+  };                                                
 
-function handleTouchMove(evt) {
-    if ( !xDown || !yDown ) {
-      return;
-    }
-    var xUp = evt.touches[0].clientX;                                    
-    var yUp = evt.touches[0].clientY;
+  function handleTouchMove(evt) {
+      if ( !xDown || !yDown ) {
+        return;
+      }
+      var xUp = evt.touches[0].clientX;                                    
+      var yUp = evt.touches[0].clientY;
 
-    var xDiff = xDown - xUp;
-    var yDiff = yDown - yUp;
+      var xDiff = xDown - xUp;
+      var yDiff = yDown - yUp;
 
-    if ( Math.abs( xDiff ) > Math.abs( yDiff ) ) {
-        if ( xDiff > 0 ) {
-            console.log("swiped left");
-            //setSwipe("left");
-            if (recentButton) {
-              handleButtonInput(recentButton);
-              setRecentButton(null);
-            }
-        } else {
-            console.log("swiped right");
-            //setSwipe("right");
-            if (recentButton) {
-              handleButtonInput(recentButton);
-              setRecentButton(null);
-            }
-        }                       
-    } else {
-        if ( yDiff > 0 ) {
-            console.log("swiped up");
-            //setSwipe("up");
-        } else { 
-            console.log("Swiped down");
-            //setSwipe("down");
-        }                                                                 
-    }
-    xDown = null;
-    yDown = null;                                             
-};
+      if ( Math.abs( xDiff ) > Math.abs( yDiff ) ) {
+          if ( xDiff > 0 ) {
+              console.log("swiped left");
+              //setSwipe("left");
+              if (recentButton) {
+                handleButtonInput(recentButton);
+                //setRecentButton(null);
+              }
+          } else {
+              console.log("swiped right");
+              //setSwipe("right");
+              if (recentButton) {
+                handleButtonInput(recentButton);
+                //setRecentButton(null);
+              }
+          }                       
+      } else {
+          if ( yDiff > 0 ) {
+              //console.log("swiped up");
+              //setSwipe("up");
+          } else { 
+              //console.log("Swiped down");
+              //setSwipe("down");
+          }                                                                 
+      }
+      xDown = null;
+      yDown = null;                                             
+  };
 
   function onTxCharacteristicValueChanged(event) {
     console.log("TX characterestic change detected");
@@ -150,6 +154,7 @@ function handleTouchMove(evt) {
       }
       if (c_time === 0) {
         playAudio();
+        setGameOngoing(true);
       }
       setCurrentTime((prev) => prev + 100);
       c_time = c_time + 100;
@@ -162,9 +167,27 @@ function handleTouchMove(evt) {
         //}
         if (parseInt(time) <= c_time) {
           //handleMiss();
-          c_note = { time: (parseInt(time) + delay).toString(), note: note, played: false };
+          const e_time = parseInt(time) + delay
+          c_note = { time: e_time.toString(), note: note, played: false };
           sendVibration(note);
           setCurrentNote(c_note);
+          try {
+            acceptableTimes.push(e_time);
+            acceptableNotes.push(note);
+          } catch(e) {
+            console.log(e);
+            console.log(acceptableTimes);
+            console.log(acceptableNotes);
+          }
+          const withinRange = acceptableTimes.findIndex(time => Math.abs(c_time - time) <= acceptable_range);
+          if (withinRange >= 0) {
+            acceptableTimes = acceptableTimes.slice(withinRange);
+            acceptableNotes = acceptableNotes.slice(withinRange);
+          }
+          console.log(c_time);
+          console.log("Acceptables: ");
+          console.log(acceptableTimes);
+          console.log(acceptableNotes);
           currentNoteIndex++;
         }
       }
@@ -175,12 +198,13 @@ function handleTouchMove(evt) {
     setTimeout(() => {
       stopAudio();
       clearTimer();
+      setGameOngoing(false);
+      acceptableTimes = []; 
+      acceptableNotes = [];
       if (document.fullscreenElement) {
-      document.exitFullscreen();
-    }
+        document.exitFullscreen();
+      }
     }, song.duration + 3000);
-
-    
 
     return;
   };
@@ -207,12 +231,11 @@ function handleTouchMove(evt) {
         currentStreak: 0,
       }));
     }
-    console.log(`Score is: ${score + stats.longestStreak}`);
   };
 
   const handleHit = () => {
     console.log('Note played accurately!');
-    setScore((prev) => prev + 1);
+    setScore(prev => (prev + 100 + (100 * stats.currentStreak)));
     setStats(prevStats => ({
       ...prevStats,
       hit: prevStats.hit + 1,
@@ -221,7 +244,7 @@ function handleTouchMove(evt) {
         prevStats.currentStreak+1 > prevStats.longestStreak
         ? prevStats.currentStreak+1 : prevStats.longestStreak
     }));
-    console.log(`Score is: ${score + stats.longestStreak}`);
+    setCurrentNote(prevNote => ({ ...prevNote, played: true }));
   };
 
   const handleKeyPress = (event) => {
@@ -249,51 +272,71 @@ function handleTouchMove(evt) {
   };
 
   const handleButtonInput = (btn) => {
-    switch (btn) {
-      case 1:
-        if ('A' === currentNote.note && Math.abs(currentTime - currentNote.time) <= 1000) {
-          currentNote.played ? handleMiss() : handleHit();
-          setCurrentNote(prevNote => ({ ...prevNote, played: true }));
-        } else {
-          console.log(`Missed note! ${currentTime} doesn't match ${currentNote.time} or ${currentNote.note} not A`);
+    if (gameOngoing) {
+      let i;
+      switch (btn) {
+        case 1:
+          console.log("First note detected.");
+          console.log(acceptableNotes);
+          i = acceptableNotes.indexOf('A');
+          if (i >= 0) {
+            console.log("Accurate hit!");
+            handleHit();
+            acceptableTimes = [...acceptableTimes.slice(0, i), ...acceptableTimes.slice(i + 1)];
+            acceptableNotes = [...acceptableNotes.slice(0, i), ...acceptableNotes.slice(i + 1)];
+          } else {
+            console.log(`Missed note!`);
+            handleMiss();
+          }
+          break;
+        case 2:
+          console.log("Second note detected.");
+          console.log(acceptableNotes);
+          i = acceptableNotes.indexOf('B');
+          if (i >= 0) {
+            console.log("Accurate hit!");
+            handleHit();
+            acceptableTimes = [...acceptableTimes.slice(0, i), ...acceptableTimes.slice(i + 1)];
+            acceptableNotes = [...acceptableNotes.slice(0, i), ...acceptableNotes.slice(i + 1)];
+          } else {
+            console.log(`Missed note!`);
+            handleMiss();
+          }
+          break;
+        case 3:
+          console.log("Third note detected.");
+          console.log(acceptableNotes);
+          i = acceptableNotes.indexOf('C');
+          if (i >= 0) {
+            console.log("Accurate hit!");
+            handleHit();
+            acceptableTimes = [...acceptableTimes.slice(0, i), ...acceptableTimes.slice(i + 1)];
+            acceptableNotes = [...acceptableNotes.slice(0, i), ...acceptableNotes.slice(i + 1)];
+          } else {
+            console.log(`Missed note!`);
+            handleMiss();
+          }
+          break;
+        case 4:
+          console.log("Fourth note detected.");
+          console.log(acceptableNotes);
+          i = acceptableNotes.indexOf('D');
+          if (i >= 0) {
+            console.log("Accurate hit!");
+            handleHit();
+            acceptableTimes = [...acceptableTimes.slice(0, i), ...acceptableTimes.slice(i + 1)];
+            acceptableNotes = [...acceptableNotes.slice(0, i), ...acceptableNotes.slice(i + 1)];
+          } else {
+            console.log(`Missed note!`);
+            handleMiss();
+          }
+          break;
+        default:
+          console.log(`Missed note! No valid note detected.`);
           handleMiss();
-          setCurrentNote(prevNote => ({ ...prevNote, played: true }));
-        }
-        break;
-      case 2:
-        if ('B' === currentNote.note && Math.abs(currentTime - currentNote.time) <= 1000) {
-          currentNote.played ? handleMiss() : handleHit();
-          setCurrentNote(prevNote => ({ ...prevNote, played: true }));
-        } else {
-          console.log(`Missed note! ${currentTime} doesn't match ${currentNote.time} or ${currentNote.note} not B`);
-          handleMiss();
-          setCurrentNote(prevNote => ({ ...prevNote, played: true }));
-        }
-        break;
-      case 3:
-        if ('C' === currentNote.note && Math.abs(currentTime - currentNote.time) <= 1000) {
-          currentNote.played ? handleMiss() : handleHit();
-          setCurrentNote(prevNote => ({ ...prevNote, played: true }));
-        } else {
-          console.log(`Missed note! ${currentTime} doesn't match ${currentNote.time} or ${currentNote.note} not C`);
-          handleMiss();
-          setCurrentNote(prevNote => ({ ...prevNote, played: true }));
-        }
-        break;
-      case 4:
-        if ('D' === currentNote.note && Math.abs(currentTime - currentNote.time) <= 1000) {
-          currentNote.played ? handleMiss() : handleHit();
-          setCurrentNote(prevNote => ({ ...prevNote, played: true }));
-        } else {
-          console.log(`Missed note! ${currentTime} doesn't match ${currentNote.time} or ${currentNote.note} not D`);
-          handleMiss();
-          setCurrentNote(prevNote => ({ ...prevNote, played: true }));
-        }
-        break;
-      default:
-        console.log(`Missed note! No valid note detected.`);
-        handleMiss();
-        break;
+          break;
+      }
+      console.log(`Score is: ${score}`);
     }
   };
 
@@ -324,12 +367,12 @@ function handleTouchMove(evt) {
             <p>Current Time: {currentTime}ms</p>
             <p>Incoming Note: {currentNote.note}</p>
             <p>Hits: {stats.hit}; Misses: {stats.miss}; Longest Combo: {stats.longestStreak}</p>
-            <p>Score: {score + stats.longestStreak}</p>
+            <p>Score: {score}</p>
             </div>
             )
           : (<div>  
               <p>Hits: {stats.hit}; Misses: {stats.miss}; Longest Combo: {stats.longestStreak}</p>
-              <p>Score: {score + stats.longestStreak}</p>
+              <p>Score: {score}</p>
             </div>)
           }
         </div>
