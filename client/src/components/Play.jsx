@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-//import createjs from 'soundjs';
+
+const AudioContext = window.AudioContext || window.webkitAudioContext;
+const audioCtx = new AudioContext();
 
 let gameInterval;
 let acceptableTimes = [];
