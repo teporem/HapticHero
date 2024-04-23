@@ -17,6 +17,7 @@ const Play = ({ song, tutorial, bluetooth }) => {
   const [recentButton, setRecentButton] = useState(null);
   const [gameOngoing, setGameOngoing] = useState(false);
   //const [swipe, setSwipe] = useState("");
+  const [playable, setPlayable] = useState(true);
 
   const delay = 500; // vibrations are sent .5s earlier than expected in song/play
   const acceptable_range = 500; // notes within .5s of expected time are accepted
@@ -133,7 +134,7 @@ const Play = ({ song, tutorial, bluetooth }) => {
     } catch(e) {
       console.log("No fullscreen capability on this device.");
     }
-    
+    setPlayable(false);
     setCurrentTime(-3000);
 
     setScore(0);
@@ -200,6 +201,7 @@ const Play = ({ song, tutorial, bluetooth }) => {
       stopAudio();
       clearTimer();
       setGameOngoing(false);
+      setPlayable(true);
       acceptableTimes = []; 
       acceptableNotes = [];
       if (document.fullscreenElement) {
@@ -356,7 +358,11 @@ const Play = ({ song, tutorial, bluetooth }) => {
       : (<div></div>)
       }
 
-      <button onClick={handlePlayButtonClick}>Play</button>
+      { playable ? (
+        <button onClick={handlePlayButtonClick}>Play</button>
+      )
+      : (null)}
+      
       {countdown > 0 ? (
         <div>
           <p>{countdown}</p>
