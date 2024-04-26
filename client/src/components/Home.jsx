@@ -24,13 +24,35 @@ const Home = ({bluetooth}) => {
   const handleStart = () => {
     setPlaying(true);
   };
-  const handleFileChange = (e) => {
-    const file = {
-        preview: URL.createObjectURL(e.target.files[0]),
-        data: e.target.files[0],
-    }
-    setFile(file);
-  }
+  
+  const handleFileChange = async (e) => {
+    const selectedFile = e.target.files[0];
+    const previewURL = URL.createObjectURL(selectedFile);
+    const reader = new FileReader();
+  
+    reader.onload = async () => {
+      const audioContext = new AudioContext();
+      const arrayBuffer = reader.result;
+  
+      try {
+        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+        const duration = audioBuffer.duration;
+  
+        const file = {
+          preview: previewURL,
+          data: selectedFile,
+          duration: duration
+        };
+  
+        setFile(file);
+      } catch (error) {
+        console.error('Error decoding audio data:', error);
+      }
+    };
+  
+    reader.readAsArrayBuffer(selectedFile);
+  };
+  
 
   const handleSubmit = async (e) => {
     setError(false);
@@ -40,36 +62,37 @@ const Home = ({bluetooth}) => {
     let formData = new FormData();
     formData.append('file', file.data);
     try {
-      await axios.get('https://server.haptichero.site'); // should return status: "Connected"
-      const response = await axios.post('https://server.haptichero.site/upload', formData, {
+      await axios.post('http://localhost:3001');
+      const response = await axios.post('http://localhost:3001/upload', formData, {
       headers: {
-        'Content-Type': 'multipart/form-data'
+          'Content-Type': 'multipart/form-data'
       }
       })
       if (response) {
-        setError(false);
-        let song = {duration: 10 * 1000, beatmap: response.data, audio: file.preview };
-        console.log(song)
-        setSong(song);
-        setCanPlay(true);
-        setLoading(false);
+          setError(false);
+          let song = {duration: file.duration * 1000, beatmap: response.data, audio: file.preview };
+          console.log(song)
+          setSong(song);
+          setCanPlay(true);
+          setLoading(false);
       }
     } catch (e) {
       try {
         console.log(e);
-        // if the server isn't up, check locally
-        const response = await axios.post('http://localhost:3001/upload', formData, {
+        // if it's not up locally, check if the server is up
+        await axios.get('https://server.haptichero.site'); // should return status: "Connected"
+        const response = await axios.post('https://server.haptichero.site/upload', formData, {
         headers: {
-            'Content-Type': 'multipart/form-data'
+          'Content-Type': 'multipart/form-data'
         }
         })
         if (response) {
-            setError(false);
-            let song = {duration: 10 * 1000, beatmap: response.data, audio: file.preview };
-            console.log(song)
-            setSong(song);
-            setCanPlay(true);
-            setLoading(false);
+          setError(false);
+          let song = {duration: 60 * 1000, beatmap: response.data, audio: file.preview };
+          console.log(song)
+          setSong(song);
+          setCanPlay(true);
+          setLoading(false);
         }
       } catch (e) {
         // if neither sites are up
